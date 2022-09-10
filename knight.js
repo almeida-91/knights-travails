@@ -6,22 +6,20 @@ class board {
   }
 
   newBoard() {
-    let position = [];
     let currentMove;
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
-        position = [j, i];
         currentMove = new move([i, j]);
         this.array.push(currentMove);
       }
     }
   }
 
-  isFull(){
-    let checkfull = this.array.filter(obj => { 
-        return obj.isVisited == false;
-    })
-    return checkfull.length==0 ? true : false;
+  isFull() {
+    let checkfull = this.array.filter((obj) => {
+      return obj.isVisited == false;
+    });
+    return checkfull.length == 0 ? true : false;
   }
 }
 
@@ -37,8 +35,8 @@ class knight {
     this.root = start;
     this.possibleMoves = [];
     this.nextMoves = [];
-    this.getPossibleMoves(board);
-    board.array[(start[0]*8+start[1])].isVisited = true;
+    this.getPossibleMoves();
+    board.array[start[0] * 8 + start[1]].isVisited = true;
   }
 
   newMove(array) {
@@ -65,28 +63,53 @@ class knight {
     let knightY = this.root[1];
     let goalX = goal[0];
     let goalY = goal[1];
-    return (knightX == goalX && knightY == goalY);
+    return knightX == goalX && knightY == goalY;
   }
 
-  getNewKnights(board,goal) {
-    if (board.isFull()==true) return null;
-    let previousKnight = new knight(this.root,board);
+  getNewKnights(board) {
+    if (board.isFull() == true) return null;
+    let previousKnight = new knight(this.root, board);
+    this.nextMoves = previousKnight.nextMoves;
     let queue = previousKnight.possibleMoves;
-    let currentKnight;    
-    while (board.isFull()==false){
-        let currentMoves = queue.shift();
-        let boardX = currentMoves[0];
-        let boardY = currentMoves[1];
-        if (board.array[(boardX*8+boardY)].isVisited == false){
-            currentKnight = new knight(currentMoves,board);
-            currentKnight.nextMoves.push(previousKnight);
-            if (currentKnight.checkGoal(goal)== true) return currentKnight;
-            previousKnight = currentKnight;
-            currentKnight.possibleMoves.forEach(item => queue.push(item));
+    let currentKnight;
+    while (queue.length > 0 && board.isFull() == false) {
+      let currentMoves = queue.shift();
+      let boardX = currentMoves[0];
+      let boardY = currentMoves[1];
+      if (board.array[boardX * 8 + boardY].isVisited == false) {
+        currentKnight = new knight(currentMoves, board);
+        previousKnight.nextMoves.push(currentKnight);
+      }
+    }
+  }
+
+  fillBoard(board){
+    if (board.isFull()==true) return null;
+    let queue = [];
+    queue.push(this.nextMoves);
+    while (queue.length > 0 && board.isFull() ==false){
+        let currentKnightArray = queue.shift();
+        for (let i = 0 ; i < currentKnightArray.length ; i++){
+            let currentKnight = currentKnightArray[i];
+            currentKnight.getNewKnights(board);
+            queue.push(currentKnight.nextMoves);
         }
     }
-    return currentKnight;
   }
+  /* let boardX = currentMoves[0];
+      let boardY = currentMoves[1];
+      while (currentMoves!=undefined){
+            if (board.array[boardX * 8 + boardY].isVisited == false) {
+                currentKnight = new knight(currentMoves, board);
+                previousKnight.nextMoves.push(currentKnight);
+            }
+            currentMoves = queue.shift();
+        }
+      }
+      if (currentKnight.checkGoal(goal) == true) return currentKnight;
+      previousKnight = currentKnight;
+      currentKnight.possibleMoves.forEach((item) => queue.push(item));
+    return currentKnight; */
 
   filterIlegalMoves() {
     this.possibleMoves = this.possibleMoves.filter((item) => {
@@ -95,20 +118,15 @@ class knight {
   }
 }
 
-function knightMoves(start, goal, gameBoard) {
+function knightMoves(start, goal) {
   if (start[0] > 8 || start[1] > 8) return "ilegal";
-  if (start[0] == goal[0] && start[1] == goal[1]) return "Knight is already in goal";
+  if (start[0] == goal[0] && start[1] == goal[1])
+    return "Knight is already in goal";
+  let gameBoard = new board();
   let knightStart = new knight(start, gameBoard);
-  let goalX = goal[0];
-  let goalY = goal[1];
-  //knightStart.getNewKnights(gameBoard);
-/*   while (gameBoard.array[ goalX , goalY ].isVisited == false){
-    knightStart = knightStart.possibleMoves;
-    for (let i = 0 ; i < knightStart.length ; i++){
-        knightStart[i].getNewKnights(gameBoard);
-    }
-  } */
-  console.log('END');
+  let knightGoal = knightStart.getNewKnights(gameBoard, goal);
+  return knightGoal;
+  console.log("END");
   return `[${knightStart.root}] [${goal}]`;
 }
 
@@ -116,4 +134,4 @@ let start = [0, 0];
 let goal = [3, 3];
 let b = new board();
 
-knightMoves(start, goal, b);
+knightMoves(start, goal);
