@@ -85,17 +85,17 @@ class knight {
     }
   }
 
-  fillBoard(board){
-    if (board.isFull()==true) return null;
+  fillBoard(board) {
+    if (board.isFull() == true) return null;
     let queue = [];
     queue.push(this.nextMoves);
-    while (queue.length > 0 && board.isFull() ==false){
-        let nextMoveArray = queue.shift();
-        for (let i = 0 ; i < nextMoveArray.length ; i++){
-            let currentKnight = nextMoveArray[i];
-            currentKnight.getNewKnights(board);
-            queue.push(currentKnight.nextMoves);
-        }
+    while (queue.length > 0 && board.isFull() == false) {
+      let nextMoveArray = queue.shift();
+      for (let i = 0; i < nextMoveArray.length; i++) {
+        let currentKnight = nextMoveArray[i];
+        currentKnight.getNewKnights(board);
+        queue.push(currentKnight.nextMoves);
+      }
     }
   }
 
@@ -114,10 +114,10 @@ function knightMoves(start, goal) {
   let knightStart = new knight(start, gameBoard);
   knightStart.getNewKnights(gameBoard);
   knightStart.fillBoard(gameBoard);
-  let knightGoal = findPath(goal,knightStart);
-  let moves = getNumberOfMoves(knightGoal,knightStart);
+  let knightGoal = findPath(goal, knightStart);
+  let moves = getNumberOfMoves(knightGoal, knightStart);
   console.log(`You made it in ${moves} moves!  Here's your path:`);
-  getMinPath(knightGoal,knightStart);
+  getMinPath(knightGoal, knightStart);
 }
 
 let start = [0, 0];
@@ -126,44 +126,47 @@ let b = new board();
 
 knightMoves(start, goal);
 
-function findPath(goal,knight){
-    let queue = [];
-    queue.push(knight.nextMoves);
-    let moves = 0;
-    while (queue.length!=0){
-        let currentKnightArray = queue.shift();
-        for (i = 0 ; i < currentKnightArray.length; i++){
-            let currentKnight = currentKnightArray[i];
-            if (currentKnight.root[0] == goal[0] && currentKnight.root[1]==goal[1]){
-                return currentKnight;
-            }
-            if (currentKnight.nextMoves.length>0){
-                queue.push(currentKnight.nextMoves);
-            }
-        }
-        moves++;
+function findPath(goal, knight) {
+  let queue = [];
+  queue.push(knight.nextMoves);
+  let moves = 0;
+  while (queue.length != 0) {
+    let currentKnightArray = queue.shift();
+    for (i = 0; i < currentKnightArray.length; i++) {
+      let currentKnight = currentKnightArray[i];
+      if (
+        currentKnight.root[0] == goal[0] &&
+        currentKnight.root[1] == goal[1]
+      ) {
+        return currentKnight;
+      }
+      if (currentKnight.nextMoves.length > 0) {
+        queue.push(currentKnight.nextMoves);
+      }
     }
-    return;
+    moves++;
+  }
+  return;
 }
 
-function getNumberOfMoves(Goalknight,originalKnight){
-    let moves = 0;
-    while(Goalknight!=undefined){
-        tmp = Goalknight.previousMove;
-        Goalknight = findPath(tmp,originalKnight);
-        moves++;
-    }
-    return moves;
+function getNumberOfMoves(Goalknight, originalKnight) {
+  let moves = 0;
+  while (Goalknight != undefined) {
+    tmp = Goalknight.previousMove;
+    Goalknight = findPath(tmp, originalKnight);
+    moves++;
+  }
+  return moves;
 }
 
-function getMinPath(Goalknight,originalKnight){
-    let pathArray = [];
-    pathArray.push(Goalknight.root);
-    while(Goalknight!=undefined){
-        tmp = Goalknight.previousMove;
-        Goalknight = findPath(tmp,originalKnight);
-        pathArray.push(tmp);
-    }
-    const result = pathArray.reverse();
-    result.forEach(item => console.log(item));
+function getMinPath(Goalknight, originalKnight) {
+  let pathArray = [];
+  pathArray.push(Goalknight.root);
+  while (Goalknight != undefined) {
+    tmp = Goalknight.previousMove;
+    Goalknight = findPath(tmp, originalKnight);
+    pathArray.push(tmp);
+  }
+  const result = pathArray.reverse();
+  result.forEach((item) => console.log(item));
 }
